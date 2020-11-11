@@ -1,0 +1,28 @@
+/** Initializes a new Hangman game and starts running it */
+
+class Main {
+	function void main () {
+		var GameInfo game;
+		var int wordNum;
+
+		while (true) {
+
+			let game = GameInfo.new();
+			do game.start();
+
+			if (game.get_word_num() = 99) {
+				do game.clean();
+				return;
+			}
+
+			else {
+				do game.play();
+			}
+		}
+
+
+
+		do game.clean();
+		return;
+	}
+}

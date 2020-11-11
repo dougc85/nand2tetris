@@ -1,0 +1,153 @@
+/** Class for drawing on screen */
+
+class Drawer {
+
+
+	function void image (int guesses) {
+
+		do Screen.clearScreen();
+
+		//Posts and rope
+		do Screen.drawLine(140, 200, 220, 200);
+		do Screen.drawLine(180, 40, 180, 200);
+		do Screen.drawLine(180, 40, 256, 40);
+		do Screen.drawLine(256, 40, 256, 64);
+
+		if (guesses < 7) {
+		//Head
+			do Screen.drawCircle(256, 80, 16);
+			do Screen.setColor(false);
+			do Screen.drawCircle(256, 80, 15);
+			do Screen.setColor(true);
+		}
+
+		if (guesses < 6) {
+		//Torso
+			do Screen.drawLine(256, 96, 256, 156);
+		}
+
+		if (guesses < 5) {
+			//Arm 1
+			do Screen.drawLine(225, 105, 256, 120);
+		}
+
+		if (guesses < 4) {
+			//Arm 2
+			do Screen.drawLine(256, 120, 287, 105);
+		}
+
+		if (guesses < 3) {
+			//Leg 1
+			do Screen.drawLine(233, 186, 256, 156);
+		}
+
+		if (guesses < 2) {
+			//Leg 2
+			do Screen.drawLine(256, 156, 279, 186);
+		}
+
+		if (guesses < 1) {
+		//Face    -----   LOSE GAME SCREEN
+		//	242, 72 center
+			do Screen.drawLine(247, 71, 252, 77);
+			do Screen.drawLine(247, 77, 252, 71);
+
+			do Screen.drawLine(260, 71, 265, 77);
+			do Screen.drawLine(260, 77, 265, 71);
+
+			do Output.moveCursor(8, 45);
+			do Output.printString("YOU HAVE");
+			do Output.moveCursor(9, 45);
+			do Output.printString("LOST!!");
+
+			do Sys.wait(2000);
+			return;
+		}
+
+		else {
+		//Right-hand Message
+		do Output.moveCursor(8, 45);
+		do Output.printString("YOU HAVE");
+		do Output.moveCursor(9, 45);
+		do Output.printInt(guesses);
+		do Output.moveCursor(10, 45);
+		do Output.printString("CHANCES");
+		do Output.moveCursor(11, 45);
+		do Output.printString("LEFT");
+		return;
+		}
+	}
+
+
+
+
+	function char guessing(Array word, int length, Array guessed, int guesses) {
+
+		var int pos;
+		var char letter;
+
+		do Screen.clearScreen();
+		do Output.moveCursor(4, 9);
+		do Output.printString("GUESS THE WORD:");
+
+		let pos = 0;
+		do Output.moveCursor(8, 9);
+
+		while (pos < length) {
+			do Output.printChar(word[pos]);
+			let pos = pos + 1;
+
+		}
+
+		do Output.moveCursor(16, 9);
+		do Output.printString("LETTERS ALREADY USED:");
+
+		do Output.moveCursor(8, 45);
+		do Output.printString("YOU HAVE");
+		do Output.moveCursor(9, 45);
+		do Output.printInt(guesses);
+		do Output.moveCursor(10, 45);
+		do Output.printString("CHANCES");
+		do Output.moveCursor(11, 45);
+		do Output.printString("LEFT");
+
+		do Output.moveCursor(19, 9);
+		let pos = 0;
+
+		if (guessed[0] = 0) {
+			do Output.printString("No letters guessed yet");
+		}
+
+		// Print guessed letters
+		while (~(guessed[pos] = 0)) {
+			do Output.printChar(guessed[pos]);
+			do Output.printChar(32);
+			let pos = pos + 1;
+		}
+
+		do Output.moveCursor(4, 25);
+		let letter = Keyboard.readChar();
+
+		return letter;
+	}
+
+
+
+
+	function void winner(String word) {
+		do Screen.clearScreen();
+
+		do Output.moveCursor(4, 9);
+		do Output.printString("CONGRATULATIONS!!!!!");
+
+		do Output.moveCursor(7, 9);
+		do Output.printString("THE WORD WAS:  ");
+		do Output.printString(word);
+
+		do Sys.wait(2000);
+
+		return;
+
+	}
+
+}

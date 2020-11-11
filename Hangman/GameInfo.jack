@@ -1,0 +1,242 @@
+/**  Holds the data for the current game state */
+
+class GameInfo {
+	field Array words;
+	field int word_num;
+	field int word_length;
+
+	constructor GameInfo new() {
+		let words = Array.new(10);
+		let words[0] = "DAX";
+		let words[1] = "ROGUE";
+		let words[2] = "PIANO";
+		let words[3] = "TABLE";
+		let words[4] = "PARADISE";
+		let words[5] = "TELEVISION";
+		let words[6] = "ORCHID";
+		let words[7] = "BOOK";
+		let words[8] = "COUCH";
+		let words[9] = "PILLOW";
+
+		return this;
+	}
+
+	method void start() {
+		var char key;
+		var int counter;
+
+		let key = 0;
+		let counter = 0;
+
+		do Screen.clearScreen();
+		do Output.moveCursor(11, 12);
+		do Output.printString("WOULD YOU LIKE TO PLAY HANGMAN? (TYPE y/n)");
+
+		while (key = 0) {
+			let key = Keyboard.keyPressed();
+			let counter = counter + 1;
+			if (counter > 9) {
+				let counter = 0;
+			}
+		}
+		
+		if (key = 78) {             // n(o)
+			do Screen.clearScreen();
+			do Output.moveCursor(11, 12);
+			do Output.printString("THAT'S TOO BAD. MAYBE NEXT TIME.");
+			let word_num = 99;
+			return;
+		}
+
+		if (key = 89) {             // y(es)
+			do Screen.clearScreen();
+			do Output.moveCursor(11, 12);
+			do Output.printString("THAT'S GREAT! GET READY TO PLAY!");
+			do Sys.wait(2500);
+			let word_num = counter;
+		}
+
+		else {
+			do Screen.clearScreen();
+			do Output.moveCursor(11, 12);
+			do Output.printString("NOT A VALID KEY. TRY AGAIN");
+			do Sys.wait(3000);
+
+			do start();
+		}
+
+
+		return;
+	}
+
+
+
+	method int get_word_num() {return word_num;}
+
+
+
+	method Array make_word_array(String word) {
+		var int pos;
+		var Array word_array;
+
+		let word_length = word.length();
+		let word_array = Array.new(word_length);
+		let pos = 0;
+		
+
+		while (pos < word_length) {
+			let word_array[pos] = word.charAt(pos);
+			let pos = pos + 1;
+		}
+
+		return word_array;
+
+	}
+
+	method void play() {
+		var Array word;
+		var Array blanks_and_letters;
+		var Array to_draw;
+		var int to_draw_length;
+		var int pos;
+		var Array letters_used;
+		var int pos2;
+		var char guess;
+		var int game_state;      //  0 = playing,  1 = won,   2 = lost
+		var int guess_number;
+		var int bad_guesses;
+		var boolean wrong;
+
+		let bad_guesses = 0;
+		let game_state = 0;
+		let guess_number = 0;
+		let word = make_word_array(words[word_num]);
+		let blanks_and_letters = Array.new(word_length);
+		let letters_used = Array.new(40);
+
+		// Make blanks array full of blanks
+		let pos = 0;
+		while (pos < word_length) {
+
+			let blanks_and_letters[pos] = 95;
+			let pos = pos + 1;
+
+		}
+
+		// Make letters_used array full of 0's
+		let pos = 0;
+		while (pos < 40) {
+			let letters_used[pos] = 0;
+			let pos = pos + 1;
+
+		}
+
+		let to_draw_length = word_length + ((word_length -1) * 2);
+		let to_draw = Array.new(to_draw_length);
+
+		do Drawer.image((7 - bad_guesses));
+		do Sys.wait(2000);
+
+
+		while (bad_guesses < 7) {
+			//Create new series of letters and blanks for the Drawer
+			let pos = 0;
+			let pos2 = 0;
+			while (pos2 < word_length) {
+				let to_draw[pos] = blanks_and_letters[pos2];
+				let pos = pos + 1;
+				let pos2 = pos2 + 1;
+
+				if (pos2 < word_length) {
+					let to_draw[pos] = 32;
+					let to_draw[pos + 1] = 32;
+					let pos = pos + 2;
+				}
+			}
+
+			//Draw the guess page, add guess to used, and increment guess_number
+			let guess = Drawer.guessing(to_draw, to_draw_length, letters_used, (7 - bad_guesses));
+
+			if (not_used(guess, letters_used)) {
+				let letters_used[guess_number] = guess;
+				let guess_number = guess_number + 1;
+
+
+
+				//Update blanks_and_letters, update whether a guess was 'wrong'
+				let pos = 0;
+				let wrong = true;
+				while (pos < word_length) {
+					if (word[pos] = guess) {
+						let blanks_and_letters[pos] = guess;
+						let wrong = false;
+					}
+					let pos = pos + 1;
+				}
+
+				// If there's a winner, draw page and return
+				if (check_win(word_length, blanks_and_letters)) {
+					do Drawer.winner(words[word_num]);
+					return;
+				}
+
+				// Otherwise, draw loser page
+				if (wrong) {
+					let bad_guesses = bad_guesses + 1;
+					do Drawer.image((7 - bad_guesses));
+					do Sys.wait(2000);
+				}
+			}
+		}
+
+		return;
+	}
+
+
+
+
+
+
+	method boolean not_used(char guess, Array guessed) {
+
+		var int pos;
+
+
+		let pos = 0;
+		while (~(guessed[pos] = 0)) {
+			if (guessed[pos] = guess) {
+				return false;
+			}
+			let pos = pos + 1;
+		}
+		return true;
+
+	}
+
+
+
+
+
+
+	method boolean check_win(int length, Array word) {
+		var int pos;
+
+		let pos = 0;
+		while (pos < length) {
+			if (word[pos] = 95) {
+				return false;
+			}
+			let pos = pos + 1;
+		}
+
+		return true;
+	}
+
+
+
+
+
+	method void clean() {
+		return;
+	}
+}
