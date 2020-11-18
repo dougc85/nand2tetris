@@ -54,9 +54,9 @@ class Screen {
         while (index < 24576) {
             let ram[index] = 0;
             let index = index + 1;
-        
-        return;
         }
+        return;
+        
     }
 
     /** Sets the current color, to be used for all subsequent drawXXX commands.

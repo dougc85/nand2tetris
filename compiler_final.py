@@ -1,3 +1,5 @@
+# Need to type full filepath as argv[1] when starting compiler from command line
+
 import sys
 import os
 
@@ -17,7 +19,7 @@ def main():
             for entry in it:
                 if entry.name.endswith('.jack'):
                     tzer = Tokenizer(entry)
-                    write_file = open('/Users/StudioMac/Desktop/nand2tetris/projects/11/' + f + '/' + entry.name[:-4] + "vm", "w")
+                    write_file = open(f + entry.name[:-4] + "vm", "w")
                     comp = Compiler(tzer, write_file)
                     comp.compile_Class()
                     tzer.close()
@@ -216,6 +218,7 @@ class Compiler:
         self.label2 = []
         self.label3 = []
         self.counter = 0
+        self.subR = False
     
     def compile_Class(self):
         if self.input.hasMoreTokens():
@@ -453,7 +456,6 @@ class Compiler:
 
         #Current token: 'let'
         
-        #Current token: varName 
         self.input.hasMoreTokens()
 
         current_name = self.input.get_Token()
@@ -469,8 +471,10 @@ class Compiler:
             is_array = True
 
             #Current token: [
-
-            self.vm.writePush(self.sym_tab.kindOf(current_name), str(self.sym_tab.indexOf(current_name)))
+            if self.sym_tab.kindOf(current_name) == 'field':
+                self.vm.writePush('this', str(self.sym_tab.indexOf(current_name)))
+            else:
+                self.vm.writePush(self.sym_tab.kindOf(current_name), str(self.sym_tab.indexOf(current_name)))
 
             #Current token: first token of an expression
             self.input.hasMoreTokens()
@@ -742,15 +746,17 @@ class Compiler:
 
                 #subroutine call identifier was previous token   Subroutine identifier  -- Used
 
+                #!!!!!!!!!!!! Added during debugging
                 #Current token: "("
+                self.vm.writePush('pointer', '0')
 
                 #Enters Expression_List unloaded
                 self.compile_Expression_List()
 
-                #Current token: ")"
-                self.input.hasMoreTokens()
+                #Current token: ")"   <------- This was actually ';', so I deleted the subsequent call
+                #self.input.hasMoreTokens()
 
-                self.vm.writeCall(f"{self.class_name}.{token}", str(self.args_temp))
+                self.vm.writeCall(f"{self.class_name}.{token}", str(self.args_temp + 1))
 
                 #LOAD FOR EXIT
                 self.input.hasMoreTokens()
